@@ -1,27 +1,29 @@
-const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
+const TelegramBot = require("node-telegram-bot-api");
 
-const app = express();
+// Настройки
 const TOKEN = "7822342149:AAErV0ppnFOAOFWIAfOJUqiykHG5PBfs_eU";
 const bot = new TelegramBot(TOKEN, { webHook: true });
+const WEBHOOK_URL = `https://telegram-bot-anu.vercel.app/api/bot`;
 
-const WEBHOOK_URL = `https://telegram-bot-anu.vercel.app/api/webhook`;
+// Устанавливаем Webhook
 bot.setWebHook(WEBHOOK_URL);
 
-const userNames = {};
-
+const app = express();
 app.use(express.json());
 
-app.post("/api/webhook", (req, res) => {
+// Обработка Webhook
+app.post("/api/bot", async (req, res) => {
   try {
     bot.processUpdate(req.body);
-    res.sendStatus(200);
+    res.status(200).send("OK");
   } catch (error) {
-    console.error("Error processing webhook:", error);
-    res.sendStatus(500);
+    console.error("Error processing Webhook:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
+// Обработчик команды /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const message = `
@@ -31,17 +33,16 @@ bot.onText(/\/start/, (msg) => {
 
 Как я могу к Вам обращаться? 👇
 `;
-  const photoPath = "https://telegram-bot-anu.vercel.app/photo.jpg";
-  bot.sendPhoto(chatId, photoPath, { caption: message });
+  const photoUrl = `https://telegram-bot-anu.vercel.app/photo.jpg`;
+  bot.sendPhoto(chatId, photoUrl, { caption: message });
 });
 
+// Обработчик сообщений
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   if (msg.text === "/start") return;
 
   const userName = msg.text;
-  userNames[chatId] = userName;
-
   bot.sendMessage(
     chatId,
     `Приятно познакомиться, ${userName}! Вы планируете пройти реабилитацию в амбулаторном отделении?`,
@@ -58,16 +59,16 @@ bot.on("message", (msg) => {
   );
 });
 
+// Обработчик CallbackQuery
 bot.on("callback_query", (query) => {
   const chatId = query.message.chat.id;
-  const userName = userNames[chatId] || "Уважаемый пользователь";
 
   if (query.data === "yes") {
     const message = `
-${userName}, Вы можете пройти курс реабилитации в РКБ им.Н.А.Семашко, согласовав с вашим лечащим врачом. Вот перечень документов, которые необходимо иметь при себе:
-
-1. Паспорт, СНИЛС, медицинский полис.
-2. Направление и результаты обследований.
+Для прохождения реабилитации необходимо предоставить следующие документы:
+1. Паспорт.
+2. Медицинский полис.
+3. СНИЛС.
     `;
     bot.sendMessage(chatId, message, {
       reply_markup: {
@@ -110,7 +111,7 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "cancel" || query.data === "restart") {
-    bot.sendMessage(chatId, "Чтобы начать сначала, напишите /start.");
+    bot.sendMessage(chatId, "Чтобы начать сначала, введите /start.");
   }
 
   bot.answerCallbackQuery(query.id);
