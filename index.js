@@ -5,7 +5,7 @@ const app = express();
 const TOKEN = "7822342149:AAErV0ppnFOAOFWIAfOJUqiykHG5PBfs_eU";
 const bot = new TelegramBot(TOKEN, { webHook: true });
 
-const WEBHOOK_URL = `https://<YOUR_VERCEL_PROJECT_NAME>.vercel.app/api/webhook`;
+const WEBHOOK_URL = `https://telegram-bot-anu.vercel.app/api/webhook`;
 
 bot.setWebHook(WEBHOOK_URL);
 
