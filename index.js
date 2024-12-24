@@ -27,7 +27,7 @@ bot.onText(/\/start/, (msg) => {
 
 Как я могу к Вам обращаться? 👇
 `;
-  const photoPath = "./photo.jpg";
+const photoPath = `${WEBHOOK_URL}/photo.jpg`;
   bot.sendPhoto(chatId, photoPath, { caption: message });
 });
 
@@ -130,7 +130,7 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "video") {
-    const videoPath = "./video.mp4";
+    const videoPath = `${WEBHOOK_URL}/video.mp4`;
     bot.sendVideo(chatId, videoPath, { caption: "Вот видеоинструкция, как пройти в корпус." });
   } else if (query.data === "cancel" || query.data === "restart") {
     bot.sendMessage(chatId, "Чтобы начать сначала, напишите /start.");
