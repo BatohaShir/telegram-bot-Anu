@@ -1,11 +1,16 @@
 const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
+const path = require("path"); // Для работы с путями к файлам
 
 const app = express();
 const TOKEN = "7822342149:AAErV0ppnFOAOFWIAfOJUqiykHG5PBfs_eU";
 const bot = new TelegramBot(TOKEN, { webHook: true });
 
-const WEBHOOK_URL = `https://telegram-bot-anu.vercel.app/api/webhook`;
+// Получаем порт из переменной окружения или используем порт по умолчанию 3000
+const PORT = process.env.PORT || 3000;
+
+// Устанавливаем URL вебхука, включая домен Render
+const WEBHOOK_URL = `https://telegram-bot-anu.onrender.com/api/webhook`;
 
 bot.setWebHook(WEBHOOK_URL);
 
@@ -13,10 +18,14 @@ const userNames = {};
 
 app.use(express.json());
 
+// Обрабатываем POST-запросы на /api/webhook
 app.post("/api/webhook", (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
+
+// Статические файлы (если нужно отправлять изображения/видео)
+app.use(express.static(path.join(__dirname, "public")));
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
@@ -27,7 +36,7 @@ bot.onText(/\/start/, (msg) => {
 
 Как я могу к Вам обращаться? 👇
 `;
-  const photoPath = "./photo.jpg";
+  const photoPath = path.join(__dirname, "photo.jpg"); // Указываем путь к файлу
   bot.sendPhoto(chatId, photoPath, { caption: message });
 });
 
@@ -130,13 +139,18 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "video") {
-    const videoPath = "./video.mp4";
+    const videoPath = path.join(__dirname, "video.mp4");
     bot.sendVideo(chatId, videoPath, { caption: "Вот видеоинструкция, как пройти в корпус." });
   } else if (query.data === "cancel" || query.data === "restart") {
     bot.sendMessage(chatId, "Чтобы начать сначала, напишите /start.");
   }
 
   bot.answerCallbackQuery(query.id);
+});
+
+// Запускаем сервер Express
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
 });
 
 module.exports = app;
