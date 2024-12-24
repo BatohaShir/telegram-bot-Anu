@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Telegram bot for RKB Semashko information service",
   "main": "src/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
   "build": "tsc"
 },
