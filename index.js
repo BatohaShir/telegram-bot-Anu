@@ -1,15 +1,13 @@
 const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
-const path = require("path"); // Для работы с путями к файлам
+const path = require("path");
 
 const app = express();
 const TOKEN = "7822342149:AAErV0ppnFOAOFWIAfOJUqiykHG5PBfs_eU";
 const bot = new TelegramBot(TOKEN, { webHook: true });
 
-// Получаем порт из переменной окружения или используем порт по умолчанию 3000
 const PORT = process.env.PORT || 3000;
 
-// Устанавливаем URL вебхука, включая домен Render
 const WEBHOOK_URL = `https://telegram-bot-anu.onrender.com/api/webhook`;
 
 bot.setWebHook(WEBHOOK_URL);
@@ -18,13 +16,11 @@ const userNames = {};
 
 app.use(express.json());
 
-// Обрабатываем POST-запросы на /api/webhook
 app.post("/api/webhook", (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-// Статические файлы (если нужно отправлять изображения/видео)
 app.use(express.static(path.join(__dirname, "public")));
 
 bot.onText(/\/start/, (msg) => {
@@ -32,11 +28,11 @@ bot.onText(/\/start/, (msg) => {
   const message = `
 Здравствуйте, меня зовут СКАЙ!
 
-Я информационный ресурс инновационного отделения РКБ им.Н.А.Семашко.
+Я информационный ресурс Инновационного амбулаторного отделения медицинской реабилитации РКБ им.Н.А.Семашко.
 
 Как я могу к Вам обращаться? 👇
 `;
-  const photoPath = path.join(__dirname, "photo.jpg"); // Указываем путь к файлу
+  const photoPath = path.join(__dirname, "photo.jpg"); 
   bot.sendPhoto(chatId, photoPath, { caption: message });
 });
 
@@ -148,7 +144,6 @@ ${userName}, Вы можете пройти курс реабилитации в
   bot.answerCallbackQuery(query.id);
 });
 
-// Запускаем сервер Express
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
