@@ -32,7 +32,7 @@ bot.onText(/\/start/, (msg) => {
 
 Как я могу к Вам обращаться? 👇
 `;
-  const photoPath = path.join(__dirname, "photo.jpg"); 
+  const photoPath = path.join(__dirname, "photo.jpg");
   bot.sendPhoto(chatId, photoPath, { caption: message });
 });
 
@@ -138,7 +138,17 @@ ${userName}, Вы можете пройти курс реабилитации в
     const videoPath = path.join(__dirname, "video.mp4");
     bot.sendVideo(chatId, videoPath, { caption: "Вот видеоинструкция, как пройти в корпус." });
   } else if (query.data === "cancel" || query.data === "restart") {
-    bot.sendMessage(chatId, "Чтобы начать сначала, напишите /start.");
+    bot.sendMessage(
+      chatId,
+      `${userName}, мне было приятно Вам помочь!\n\nЖелаю Вам здоровья и благополучия!\n\nСкай, информационный ресурс Инновационного амбулаторного отделения медицинской реабилитации РКБ им. Н.А.Семашко`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Начать сначала", callback_data: "restart" }],
+          ],
+        },
+      }
+    );
   }
 
   bot.answerCallbackQuery(query.id);
