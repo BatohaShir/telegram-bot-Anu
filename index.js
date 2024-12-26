@@ -147,29 +147,15 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "video") {
-    // Отправляем временное сообщение
     const loadingMessage = await bot.sendMessage(chatId, "Загружается видео...");
-
-    // Отправляем видео
     const videoPath = path.join(__dirname, "video.mp4");
     await bot.sendVideo(chatId, videoPath, {
       caption: "Вот видеоинструкция, как пройти в корпус.",
     });
-
-    // Удаляем временное сообщение
     await bot.deleteMessage(chatId, loadingMessage.message_id);
   } else if (query.data === "cancel" || query.data === "restart") {
-    bot.sendMessage(
-      chatId,
-      `${userName}, мне было приятно Вам помочь!\n\nЖелаю Вам здоровья и благополучия!\n\nСкай, информационный ресурс Инновационного амбулаторного отделения медицинской реабилитации РКБ им. Н.А.Семашко`,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "Начать сначала", callback_data: "restart" }],
-          ],
-        },
-      }
-    );
+    bot.deleteMessage(chatId, query.message.message_id); // Удаляем текущее сообщение
+    bot.emit("text", { chat: { id: chatId }, text: "/start" }); // Триггер команды /start
   }
 
   bot.answerCallbackQuery(query.id);
