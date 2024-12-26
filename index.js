@@ -110,9 +110,52 @@ ${userName}, Вы можете пройти курс реабилитации в
         },
       }
     );
+  } else if (query.data === "register") {
+    bot.sendMessage(
+      chatId,
+      "Для записи на приём позвоните по телефону:\n📞 +79025313017\n\nНаши специалисты ответят на все вопросы! 📋",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "📍 Местоположение", callback_data: "location" }],
+            [{ text: "🔄 Начать сначала", callback_data: "restart" }],
+          ],
+        },
+      }
+    );
+  } else if (query.data === "location") {
+    bot.sendMessage(
+      chatId,
+      "📍 РКБ им. Н.А. Семашко находится по адресу:\n\n**г. Улан-Удэ, Ул. Павлова, 12, корпус 1**\n\nДля уточнения маршрута нажмите на кнопку ниже:",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🗺️ Открыть местоположение в 2Gis",
+                url: "https://2gis.ru/ulanude/firm/70000001041029095?m=107.613031%2C51.805952%2F18.47",
+              },
+            ],
+            [
+              {
+                text: "🎥 Посмотреть видео как пройти в корпус",
+                callback_data: "video",
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } else if (query.data === "video") {
+    const loadingMessage = await bot.sendMessage(chatId, "⏳ Загружается видео...");
+    const videoPath = path.join(__dirname, "video.mp4");
+    await bot.sendVideo(chatId, videoPath, {
+      caption: "🎥 Вот видеоинструкция, как пройти в корпус.",
+    });
+    await bot.deleteMessage(chatId, loadingMessage.message_id);
   } else if (query.data === "cancel" || query.data === "restart") {
     bot.deleteMessage(chatId, query.message.message_id); // Удаляем текущее сообщение
-    bot.emit("message", { chat: { id: chatId }, text: "/start" }); // Инициализация /start
+    bot.emit("message", { chat: { id: chatId }, text: "/start" }); // Триггер команды /start
   }
 
   bot.answerCallbackQuery(query.id);
