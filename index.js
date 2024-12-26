@@ -23,7 +23,7 @@ app.post("/api/webhook", (req, res) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const message = `
 Здравствуйте, меня зовут СКАЙ! 🤖
@@ -33,10 +33,10 @@ bot.onText(/\/start/, (msg) => {
 Как я могу к Вам обращаться? 👇
 `;
   const photoPath = path.join(__dirname, "photo.jpg");
-  bot.sendPhoto(chatId, photoPath, { caption: message });
+  await bot.sendPhoto(chatId, photoPath, { caption: message });
 });
 
-bot.on("message", (msg) => {
+bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
 
   if (msg.text === "/start") return;
@@ -44,7 +44,7 @@ bot.on("message", (msg) => {
   const userName = msg.text;
   userNames[chatId] = userName;
 
-  bot.sendMessage(
+  await bot.sendMessage(
     chatId,
     `Приятно познакомиться, ${userName}! 😊 Вы планируете пройти реабилитацию в амбулаторном отделении?`,
     {
@@ -88,7 +88,7 @@ ${userName}, Вы можете пройти курс реабилитации в
 
 Примечание: При себе иметь удобную спортивную одежду/сменную обувь, маски, бахилы, пеленку.
 `;
-    bot.sendMessage(chatId, message, {
+    await bot.sendMessage(chatId, message, {
       reply_markup: {
         inline_keyboard: [
           [
@@ -99,7 +99,7 @@ ${userName}, Вы можете пройти курс реабилитации в
       },
     });
   } else if (query.data === "no") {
-    bot.sendMessage(
+    await bot.sendMessage(
       chatId,
       `${userName}, мне было приятно Вам помочь! 😊\n\nЖелаю Вам здоровья и благополучия! 💐\n\nСкай, информационный ресурс Инновационного амбулаторного отделения медицинской реабилитации РКБ им. Н.А.Семашко`,
       {
@@ -111,7 +111,7 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "register") {
-    bot.sendMessage(
+    await bot.sendMessage(
       chatId,
       "Для записи на приём позвоните по телефону:\n📞 +79025313017\n\nНаши специалисты ответят на все вопросы! 📋",
       {
@@ -124,7 +124,7 @@ ${userName}, Вы можете пройти курс реабилитации в
       }
     );
   } else if (query.data === "location") {
-    bot.sendMessage(
+    await bot.sendMessage(
       chatId,
       "📍 РКБ им. Н.А. Семашко находится по адресу:\n\n**г. Улан-Удэ, Ул. Павлова, 12, корпус 1**\n\nДля уточнения маршрута нажмите на кнопку ниже:",
       {
@@ -159,9 +159,24 @@ ${userName}, Вы можете пройти курс реабилитации в
       },
     });
     await bot.deleteMessage(chatId, loadingMessage.message_id);
-  } else if (query.data === "cancel" || query.data === "restart") {
-    bot.deleteMessage(chatId, query.message.message_id); // Удаляем текущее сообщение
-    bot.emit("message", { chat: { id: chatId }, text: "/start" }); // Триггер команды /start
+  } else if (query.data === "restart") {
+    // Удаляем текущее сообщение
+    try {
+      await bot.deleteMessage(chatId, query.message.message_id);
+    } catch (error) {
+      console.error("Ошибка при удалении сообщения:", error.message);
+    }
+
+    // Отправляем стартовое сообщение заново
+    const message = `
+Здравствуйте, меня зовут СКАЙ! 🤖
+
+Я информационный ресурс Инновационного амбулаторного отделения медицинской реабилитации РКБ им.Н.А.Семашко.
+
+Как я могу к Вам обращаться? 👇
+`;
+    const photoPath = path.join(__dirname, "photo.jpg");
+    await bot.sendPhoto(chatId, photoPath, { caption: message });
   }
 
   bot.answerCallbackQuery(query.id);
