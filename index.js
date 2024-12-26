@@ -13,7 +13,7 @@ const WEBHOOK_URL = `https://telegram-bot-anu.onrender.com/api/webhook`;
 bot.setWebHook(WEBHOOK_URL);
 
 const userNames = {};
-const messageHistory = {}; // Хранение истории сообщений для каждого чата
+const messageHistory = {};
 
 app.use(express.json());
 
@@ -24,7 +24,6 @@ app.post("/api/webhook", (req, res) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// Утилита для сохранения сообщений в истории
 function saveMessage(chatId, messageId) {
   if (!messageHistory[chatId]) {
     messageHistory[chatId] = [];
@@ -32,7 +31,6 @@ function saveMessage(chatId, messageId) {
   messageHistory[chatId].push(messageId);
 }
 
-// Утилита для удаления всех сообщений из истории
 async function deleteMessageHistory(chatId) {
   if (messageHistory[chatId]) {
     for (const messageId of messageHistory[chatId]) {
@@ -42,7 +40,7 @@ async function deleteMessageHistory(chatId) {
         console.error(`Ошибка удаления сообщения ${messageId}:`, error.message);
       }
     }
-    messageHistory[chatId] = []; // Очищаем историю после удаления
+    messageHistory[chatId] = [];
   }
 }
 
@@ -191,10 +189,8 @@ ${userName}, Вы можете пройти курс реабилитации в
 
     await bot.deleteMessage(chatId, loadingMessage.message_id);
   } else if (query.data === "restart") {
-    // Удаляем всю историю сообщений
     await deleteMessageHistory(chatId);
 
-    // Отправляем стартовое сообщение заново
     const message = `
 Здравствуйте, меня зовут СКАЙ! 🤖
 
