@@ -155,7 +155,7 @@ ${userName}, Вы можете пройти курс реабилитации в
     await bot.deleteMessage(chatId, loadingMessage.message_id);
   } else if (query.data === "cancel" || query.data === "restart") {
     bot.deleteMessage(chatId, query.message.message_id); // Удаляем текущее сообщение
-    bot.emit("text", { chat: { id: chatId }, text: "/start" }); // Триггер команды /start
+    bot.emit("message", { chat: { id: chatId }, text: "/start" }); // Триггер команды /start
   }
 
   bot.answerCallbackQuery(query.id);
