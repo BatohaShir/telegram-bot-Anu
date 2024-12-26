@@ -93,7 +93,7 @@ ${userName}, Вы можете пройти курс реабилитации в
         inline_keyboard: [
           [
             { text: "📅 Записаться на приём", callback_data: "register" },
-            { text: "🔙 Отмена", callback_data: "cancel" },
+            { text: "🔄 Начать сначала", callback_data: "restart" },
           ],
         ],
       },
@@ -142,6 +142,7 @@ ${userName}, Вы можете пройти курс реабилитации в
                 callback_data: "video",
               },
             ],
+            [{ text: "🔄 Начать сначала", callback_data: "restart" }],
           ],
         },
       }
@@ -151,6 +152,11 @@ ${userName}, Вы можете пройти курс реабилитации в
     const videoPath = path.join(__dirname, "video.mp4");
     await bot.sendVideo(chatId, videoPath, {
       caption: "🎥 Вот видеоинструкция, как пройти в корпус.",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "🔄 Начать сначала", callback_data: "restart" }],
+        ],
+      },
     });
     await bot.deleteMessage(chatId, loadingMessage.message_id);
   } else if (query.data === "cancel" || query.data === "restart") {
